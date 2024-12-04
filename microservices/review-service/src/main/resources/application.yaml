@@ -1,6 +1,6 @@
 spring:
   application:
-    name: review-service
+    name: review
   datasource:
     url: jdbc:postgresql://localhost:5432/review-db
     username: user
@@ -45,6 +45,16 @@ server:
   error:
     include-message: always
 
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    initialInstanceInfoReplicationIntervalSeconds: 5
+    registryFetchIntervalSeconds: 5
+  instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5
+
 management:
   endpoint:
     health:
@@ -83,6 +93,11 @@ spring:
 server:
   port: 8080
 
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:8761/eureka/
+
 ---
 spring:
   config:
@@ -106,4 +121,3 @@ spring:
         messageProcessor-in-0:
           consumer:
             instanceIndex: 1
-

@@ -1,6 +1,6 @@
 spring:
   application:
-    name: recommendation-service
+    name: recommendation
   data:
     mongodb:
       host: localhost
@@ -50,6 +50,16 @@ server:
   error:
     include-message: always
 
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    initialInstanceInfoReplicationIntervalSeconds: 5
+    registryFetchIntervalSeconds: 5
+  instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5
+
 logging:
   level:
     root: INFO
@@ -75,6 +85,11 @@ spring:
 server:
   port: 8080
 
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:8761/eureka/
+
 ---
 spring:
   config:
@@ -98,4 +113,3 @@ spring:
         messageProcessor-in-0:
           consumer:
             instanceIndex: 1
-

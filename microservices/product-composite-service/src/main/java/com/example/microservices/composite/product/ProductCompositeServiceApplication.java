@@ -11,8 +11,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.metrics.buffering.BufferingApplicationStartup;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
@@ -50,5 +52,11 @@ public class ProductCompositeServiceApplication {
   public Scheduler publishEventScheduler(@Value("${app.threadPoolSize:10}")Integer threadPoolSize,
                                          @Value("${app.taskQueueSize:100}")Integer taskQueueSize) {
     return Schedulers.newBoundedElastic(threadPoolSize, taskQueueSize, "jdbc-pool");
+  }
+
+  @Bean
+  @LoadBalanced
+  public WebClient.Builder loadBalancedWebClientBuilder() {
+    return WebClient.builder();
   }
 }

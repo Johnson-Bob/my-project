@@ -9,9 +9,6 @@ import com.example.api.core.review.ReviewService;
 import com.example.api.event.Event;
 import com.example.api.exception.InvalidInputException;
 import com.example.api.exception.NotFoundException;
-import com.example.microservices.composite.product.ProductServiceHostProperties;
-import com.example.microservices.composite.product.RecommendationServiceHostProperties;
-import com.example.microservices.composite.product.ReviewServiceHostProperties;
 import com.example.util.http.HttpErrorInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -38,31 +35,27 @@ import static java.util.logging.Level.FINE;
 @Service
 @Slf4j
 public class ProductCompositeIntegration implements ProductService, RecommendationService, ReviewService {
+  private static final String PRODUCT_SERVICE_URL = "http://product";
+  private static final String RECOMMENDATION_SERVICE_URL = "http://recommendation";
+  private static final String REVIEW_SERVICE_URL = "http://review";
+
   private final WebClient webClient;
   private final ObjectMapper mapper;
-  private final String productServiceUrl;
-  private final String recommendationServiceUrl;
-  private final String reviewServiceUrl;
   private final StreamBridge streamBridge;
   private final Scheduler publishEventScheduler;
 
   @Autowired
-  public ProductCompositeIntegration(WebClient.Builder webClientbuilder, ObjectMapper mapper, ProductServiceHostProperties productServiceHostProperties,
-                                     RecommendationServiceHostProperties recommendationServiceHostProperties,
-                                     ReviewServiceHostProperties reviewServiceHostProperties, StreamBridge streamBridge,
+  public ProductCompositeIntegration(WebClient.Builder webClientbuilder, ObjectMapper mapper, StreamBridge streamBridge,
                                      @Qualifier("publishEventScheduler") Scheduler publishEventScheduler) {
     this.webClient = webClientbuilder.build();
     this.mapper = mapper;
-    productServiceUrl = "http://" + productServiceHostProperties.host() + ":" + productServiceHostProperties.port();
-    recommendationServiceUrl = "http://" + recommendationServiceHostProperties.host() + ":" + recommendationServiceHostProperties.port();
-    reviewServiceUrl = "http://" + reviewServiceHostProperties.host() + ":" + reviewServiceHostProperties.port();
     this.streamBridge = streamBridge;
     this.publishEventScheduler = publishEventScheduler;
   }
 
   @Override
   public Mono<Product> getProduct(int productId) {
-    String url = productServiceUrl + "/product/" + productId;
+    String url = PRODUCT_SERVICE_URL + "/product/" + productId;
     return webClient.get().uri(url).retrieve()
         .bodyToMono(Product.class)
         .log(log.getName(), FINE)
@@ -86,7 +79,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
 
   @Override
   public Flux<Recommendation> getRecommendations(int productId) {
-    String url = recommendationServiceUrl + "/recommendation?productId=" + productId;
+    String url = RECOMMENDATION_SERVICE_URL + "/recommendation?productId=" + productId;
     return webClient.get().uri(url).retrieve()
         .bodyToFlux(Recommendation.class)
         .log(log.getName(), FINE)
@@ -109,7 +102,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
 
   @Override
   public Flux<Review> getReviews(int productId) {
-    String url = reviewServiceUrl + "/review?productId=" + productId;
+    String url = REVIEW_SERVICE_URL + "/review?productId=" + productId;
     return webClient.get().uri(url).retrieve()
         .bodyToFlux(Review.class)
         .log(log.getName(), FINE)
@@ -131,13 +124,13 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
   }
 
   public Mono<Health> getProductHealth() {
-    return getHealth(productServiceUrl);
+    return getHealth(PRODUCT_SERVICE_URL);
   }
   public Mono<Health> getRecommendationHealth() {
-    return getHealth(recommendationServiceUrl);
+    return getHealth(RECOMMENDATION_SERVICE_URL);
   }
   public Mono<Health> getReviewHealth() {
-    return getHealth(reviewServiceUrl);
+    return getHealth(REVIEW_SERVICE_URL);
   }
 
   private Mono<Health> getHealth(String url) {

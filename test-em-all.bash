@@ -177,12 +177,17 @@ if [[ $@ == *"start"* ]]
 then
   echo "Restarting the test environment..."
   echo "$ docker compose down --remove-orphans"
-  podman compose down --remove-orphans
+  docker compose down --remove-orphans
   echo "$ docker compose up -d"
-  podman compose up -d
+  docker compose up -d
 fi
 
 waitForService curl http://$HOST:$PORT/actuator/health
+
+# Verify access to Eureka and that all four microservices are registered in Eureka
+assertCurl 200 "curl -H "accept:application/json" $HOST:8761/eureka/apps -s"
+assertEqual 4 $(echo $RESPONSE | jq ".applications.application | length")
+
 setupTestdata
 
 waitForMessageProcessing
@@ -231,7 +236,7 @@ if [[ $@ == *"stop"* ]]
 then
     echo "We are done, stopping the test environment..."
     echo "$ docker compose down"
-    podman compose down
+    docker compose down
 fi
 
 echo "End, all tests OK:" `date`

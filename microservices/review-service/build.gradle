@@ -36,6 +36,7 @@ dependencies {
 	implementation 'org.postgresql:postgresql'
 	implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka-reactive'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
