@@ -1,0 +1,7 @@
+ext {
+    springBootVersion = '3.4.0'
+    lombokVersion = '1.18.34'
+    mapStructVersion = "1.6.3"
+    openapiVersion = '2.7.0'
+    springCloudVersion = "2024.0.0"
+}
