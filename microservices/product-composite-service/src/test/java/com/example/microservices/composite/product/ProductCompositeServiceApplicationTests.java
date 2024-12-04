@@ -8,12 +8,12 @@ import com.example.api.exception.InvalidInputException;
 import com.example.api.exception.NotFoundException;
 import com.example.microservices.composite.product.services.ProductCompositeIntegration;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.convention.TestBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -35,24 +35,28 @@ class ProductCompositeServiceApplicationTests {
   @Autowired private WebTestClient client;
   @Autowired private ObjectMapper mapper;
 
-  @MockitoBean
-  private ProductCompositeIntegration compositeIntegration;
+  @TestBean
+  private static ProductCompositeIntegration compositeIntegration;
 
-  @BeforeEach
-  void setUp() {
+  private static ProductCompositeIntegration compositeIntegration() {
+    var integrationMock = Mockito.mock(ProductCompositeIntegration.class);
 
-    when(compositeIntegration.getProduct(PRODUCT_ID_OK))
-      .thenReturn(Mono.just(new Product(PRODUCT_ID_OK, "name", 1, "mock-address")));
-    when(compositeIntegration.getRecommendations(PRODUCT_ID_OK))
-      .thenReturn(Flux.fromIterable(singletonList(new Recommendation(PRODUCT_ID_OK, 1, "author", 1, "content", "mock address"))));
-    when(compositeIntegration.getReviews(PRODUCT_ID_OK))
-      .thenReturn(Flux.fromIterable(singletonList(new Review(PRODUCT_ID_OK, 1, "author", "subject", "content", "mock address"))));
+    when(integrationMock.getProduct(PRODUCT_ID_OK))
+        .thenReturn(Mono.just(new Product(PRODUCT_ID_OK, "name", 1, "mock-address")));
+    when(integrationMock.getRecommendations(PRODUCT_ID_OK))
+        .thenReturn(Flux.fromIterable(singletonList(new Recommendation(PRODUCT_ID_OK, 1, "author",
+            1, "content", "mock address"))));
+    when(integrationMock.getReviews(PRODUCT_ID_OK))
+        .thenReturn(Flux.fromIterable(singletonList(new Review(PRODUCT_ID_OK, 1, "author", "subject",
+            "content", "mock address"))));
 
-    when(compositeIntegration.getProduct(PRODUCT_ID_NOT_FOUND))
-      .thenThrow(new NotFoundException("NOT FOUND: " + PRODUCT_ID_NOT_FOUND));
+    when(integrationMock.getProduct(PRODUCT_ID_NOT_FOUND))
+        .thenThrow(new NotFoundException("NOT FOUND: " + PRODUCT_ID_NOT_FOUND));
 
-    when(compositeIntegration.getProduct(PRODUCT_ID_INVALID))
-      .thenThrow(new InvalidInputException("INVALID: " + PRODUCT_ID_INVALID));
+    when(integrationMock.getProduct(PRODUCT_ID_INVALID))
+        .thenThrow(new InvalidInputException("INVALID: " + PRODUCT_ID_INVALID));
+
+    return integrationMock;
   }
 
   @Test
