@@ -34,6 +34,7 @@ server:
   port: 7000
   error:
     include-message: always
+  forward-headers-strategy: framework
 
 eureka:
   client:
